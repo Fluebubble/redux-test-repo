@@ -15,6 +15,16 @@ const getVisibleTasks = (tasks, statusFilter) => {
 };
 
 export const TaskList = () => {
+  const func1 = arg => {
+    const returnedFunc = arg2 => {
+      return arg + arg2;
+    };
+    return returnedFunc;
+  };
+
+  const fivePlusArg = func1(5);
+  console.log(fivePlusArg(2))
+
   const tasks = useSelector(state => state.tasks);
   const statusFilter = useSelector(state => state.filters.status);
   const visibleTasks = getVisibleTasks(tasks, statusFilter);

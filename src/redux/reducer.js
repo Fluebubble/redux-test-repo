@@ -1,20 +1,9 @@
 import { combineReducers } from 'redux';
 import { statusFilters } from './constants';
+import { addTask, deleteTask, toggleCompleted } from './actions';
+import { createReducer } from '@reduxjs/toolkit';
 
-const initialState = {
-  tasks: [
-    { id: 0, text: 'Learn HTML and CSS', completed: true },
-    { id: 1, text: 'Get good at JavaScript', completed: true },
-    { id: 2, text: 'Master React', completed: false },
-    { id: 3, text: 'Discover Redux', completed: false },
-    { id: 4, text: 'Build amazing apps', completed: false },
-  ],
-  filters: {
-    status: 'all',
-  },
-};
-
-const taskInitialState = [
+const tasksInitialState = [
   { id: 0, text: 'Learn HTML and CSS', completed: true },
   { id: 1, text: 'Get good at JavaScript', completed: true },
   { id: 2, text: 'Master React', completed: false },
@@ -22,33 +11,46 @@ const taskInitialState = [
   { id: 4, text: 'Build amazing apps', completed: false },
 ];
 
-const tasksReducer = (state = taskInitialState, action) => {
+export const tasksReducerOld = (state = tasksInitialState, action) => {
   switch (action.type) {
-    case 'tasks/addTask': {
+    case addTask.type:
       return [...state, action.payload];
-    }
-    case 'tasks/deleteTask': {
+    case deleteTask.type:
       return state.filter(task => task.id !== action.payload);
-    }
-    case 'tasks/toggleCompleted': {
+    case toggleCompleted.type:
       return state.map(task => {
         if (task.id !== action.payload) {
           return task;
         }
         return { ...task, completed: !task.completed };
       });
-    }
-    default: {
+    default:
       return state;
-    }
   }
 };
 
-const filtersInitialState = {
-  status: statusFilters.all,
+export const tasksReducer = createReducer(tasksInitialState, {
+  [addTask]: (state, action) => {
+    state.push(action.payload);
+  },
+  [deleteTask]: (state, action) => {
+    const index = state.findIndex(task => task.id === action.payload);
+    state.splice(index, 1);
+  },
+  [toggleCompleted]: (state, action) => {
+    for (const task of state) {
+      if (task.id === action.payload) {
+        task.completed = !task.completed;
+      }
+    }
+  },
+});
+
+export const filtersInitialState = {
+  status: statusFilters.active,
 };
 
-const filtersReducer = (state = filtersInitialState, action) => {
+export const filtersReducer = (state = filtersInitialState, action) => {
   switch (action.type) {
     case 'filters/setStatusFilter':
       return {
@@ -59,8 +61,3 @@ const filtersReducer = (state = filtersInitialState, action) => {
       return state;
   }
 };
-
-export const rootReducer = combineReducers({
-  tasks: tasksReducer,
-  filters: filtersReducer,
-});
